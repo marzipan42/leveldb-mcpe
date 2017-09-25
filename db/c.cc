@@ -462,6 +462,8 @@ void leveldb_options_set_compression(leveldb_options_t* opt, int t) {
       break;
     case leveldb_zlib_raw_compression:
       opt->rep.compressors[0] = new leveldb::ZlibCompressorRaw();
+      //backwards compatibility
+      opt->rep.compressors[1] = new leveldb::ZlibCompressor();
       break;
   }
 }
