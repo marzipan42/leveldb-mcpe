@@ -34,14 +34,6 @@
 #include <windows.h>
 #include <cassert>
 
-#define ZLIB
-
-#ifdef SNAPPY
-#include <snappy/snappy.h>
-#elif defined(ZLIB)
-#include <zlib/zlib.h>
-#endif
-
 namespace leveldb {
 	namespace port {
 
