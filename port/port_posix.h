@@ -39,9 +39,6 @@
 #endif
 
 #include <pthread.h>
-#ifdef SNAPPY
-#include <snappy.h>
-#endif
 #include <stdint.h>
 #include <string>
 #include "port/atomic_pointer.h"
