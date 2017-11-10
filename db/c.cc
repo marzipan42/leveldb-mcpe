@@ -16,7 +16,10 @@
 #include "leveldb/status.h"
 #include "leveldb/write_batch.h"
 #include "leveldb/zlib_compressor.h"
+#ifdef SNAPPY
 #include "leveldb/snappy_compressor.h"
+#endif // SNAPPY
+
 
 using leveldb::Cache;
 using leveldb::Comparator;
