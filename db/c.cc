@@ -5,7 +5,9 @@
 #include "leveldb/c.h"
 
 #include <stdlib.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif // _WIN32
 #include "leveldb/cache.h"
 #include "leveldb/comparator.h"
 #include "leveldb/db.h"
@@ -15,8 +17,13 @@
 #include "leveldb/options.h"
 #include "leveldb/status.h"
 #include "leveldb/write_batch.h"
+#ifndef NO_ZLIB
 #include "leveldb/zlib_compressor.h"
+#endif // NO_ZLIB
+#ifdef SNAPPY
 #include "leveldb/snappy_compressor.h"
+#endif // SNAPPY
+
 
 using leveldb::Cache;
 using leveldb::Comparator;
@@ -457,6 +464,7 @@ void leveldb_options_set_compression(leveldb_options_t* opt, int t) {
       opt->rep.compressors[0] = new leveldb::SnappyCompressor();
       break;
 #endif
+#ifndef NO_ZLIB
     case leveldb_zlib_compression:
       opt->rep.compressors[0] = new leveldb::ZlibCompressor();
       break;
@@ -465,6 +473,7 @@ void leveldb_options_set_compression(leveldb_options_t* opt, int t) {
       //backwards compatibility
       opt->rep.compressors[1] = new leveldb::ZlibCompressor();
       break;
+#endif // !NO_ZLIB
   }
 }
 
