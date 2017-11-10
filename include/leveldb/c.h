@@ -205,8 +205,10 @@ enum {
 #ifdef SNAPPY
   leveldb_snappy_compression = 1,
 #endif
+#ifndef NO_ZLIB
   leveldb_zlib_compression = 2,
   leveldb_zlib_raw_compression = 4
+#endif // !NO_ZLIB
 };
 extern void leveldb_options_set_compression(leveldb_options_t*, int);
 
