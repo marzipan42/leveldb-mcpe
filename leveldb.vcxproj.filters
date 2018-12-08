@@ -234,9 +234,6 @@
     <ClCompile Include="util\env_win.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="util\env_winrt.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="util\filter_policy.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
