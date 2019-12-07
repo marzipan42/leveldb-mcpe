@@ -592,11 +592,7 @@ namespace leveldb {
  		}
  
 		void WinRTEnv::StartThread(void(*function)(void* arg), void* arg) {
- 			StartThreadState* state = new StartThreadState;
- 			state->user_function = function;
- 			state->arg = arg;
-			_Thrd_t thrd;
-			_Thrd_create(&thrd, StartThreadWrapper, state);
+      std::thread t(function,arg);
  		}
 	}
 
