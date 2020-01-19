@@ -11,6 +11,7 @@
 #include "leveldb/cache.h"
 #include "leveldb/comparator.h"
 #include "leveldb/db.h"
+#include "leveldb/decompress_allocator.h"
 #include "leveldb/env.h"
 #include "leveldb/filter_policy.h"
 #include "leveldb/iterator.h"
@@ -617,6 +618,49 @@ int leveldb_major_version() {
 
 int leveldb_minor_version() {
   return kMinorVersion;
+}
+
+class NullLogger : public Logger
+{
+public:
+  virtual void Logv(const char* format, va_list ap) {}
+};
+
+void leveldb_all_keys_vals(const char* dbname, void (*keyvalfunc)(uint64_t keysize, const char* key, uint64_t valsize, const char* val),
+  void (*errfunc)(const char *err))
+{
+  leveldb::Options options;
+  // options settings copied from mcpe_viz
+  options.filter_policy = leveldb::NewBloomFilterPolicy(10);
+  options.block_size = 4096;
+  options.block_cache = leveldb::NewLRUCache(40 * 1024 * 1024);
+  options.write_buffer_size = 4 * 1024 * 1024;
+  options.info_log = new NullLogger();
+  options.compressors[0] = new leveldb::ZlibCompressorRaw(-1);
+  options.compressors[1] = new leveldb::ZlibCompressor();
+
+  leveldb::DB* db = NULL;
+  leveldb::Status status = leveldb::DB::Open(options, dbname, &db);
+  if (!status.ok())
+  {
+    errfunc(("DB::Open: "+status.ToString()).c_str());
+    return;
+  }
+  leveldb::ReadOptions read_options;
+  // options settings copied from mcpe_viz
+  read_options.fill_cache = false;
+  read_options.decompress_allocator = new leveldb::DecompressAllocator();
+
+  leveldb::Iterator *i = db->NewIterator(read_options);
+  i->SeekToFirst();
+  while (i->Valid())
+  {
+    keyvalfunc(i->key().size(),i->key().data(),i->value().size(), i->value().data());
+    i->Next();
+  }
+
+  delete i;
+  delete db;
 }
 
 }  // end extern "C"

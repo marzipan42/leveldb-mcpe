@@ -287,6 +287,9 @@ extern DLLX int leveldb_major_version();
 /* Return the minor version number for this release. */
 extern DLLX int leveldb_minor_version();
 
+extern DLLX void leveldb_all_keys_vals(const char* dbname, void (*keyvalfunc)(uint64_t keysize, const char* key, uint64_t valsize, const char* val),
+  void (*errfunc)(const char* err));
+
 #ifdef __cplusplus
 }  /* end extern "C" */
 #endif
