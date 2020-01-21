@@ -626,41 +626,43 @@ public:
   virtual void Logv(const char* format, va_list ap) {}
 };
 
-void leveldb_all_keys_vals(const char* dbname, void (*keyvalfunc)(uint64_t keysize, const char* key, uint64_t valsize, const char* val),
-  void (*errfunc)(const char *err))
+leveldb_options_t* leveldb_mcpe_options_create()
 {
-  leveldb::Options options;
+  leveldb_options_t* result = new leveldb_options_t;
   // options settings copied from mcpe_viz
-  options.filter_policy = leveldb::NewBloomFilterPolicy(10);
-  options.block_size = 4096;
-  options.block_cache = leveldb::NewLRUCache(40 * 1024 * 1024);
-  options.write_buffer_size = 4 * 1024 * 1024;
-  options.info_log = new NullLogger();
-  options.compressors[0] = new leveldb::ZlibCompressorRaw(-1);
-  options.compressors[1] = new leveldb::ZlibCompressor();
+  result->rep.filter_policy = leveldb::NewBloomFilterPolicy(10);
+  result->rep.block_size = 4096;
+  result->rep.block_cache = leveldb::NewLRUCache(40 * 1024 * 1024);
+  result->rep.write_buffer_size = 4 * 1024 * 1024;
+  result->rep.info_log = new NullLogger();
+  result->rep.compressors[0] = new leveldb::ZlibCompressorRaw(-1);
+  result->rep.compressors[1] = new leveldb::ZlibCompressor();
+  return result;
+}
 
-  leveldb::DB* db = NULL;
-  leveldb::Status status = leveldb::DB::Open(options, dbname, &db);
-  if (!status.ok())
-  {
-    errfunc(("DB::Open: "+status.ToString()).c_str());
-    return;
-  }
-  leveldb::ReadOptions read_options;
+void leveldb_mcpe_options_destroy(leveldb_options_t* opt)
+{
+  delete opt->rep.compressors[1];
+  delete opt->rep.compressors[0];
+  delete opt->rep.info_log;
+  delete opt->rep.block_cache;
+  delete opt->rep.filter_policy;
+  delete opt;
+}
+
+leveldb_readoptions_t* leveldb_mcpe_readoptions_create()
+{
+  leveldb_readoptions_t* result = new leveldb_readoptions_t;
   // options settings copied from mcpe_viz
-  read_options.fill_cache = false;
-  read_options.decompress_allocator = new leveldb::DecompressAllocator();
+  result->rep.fill_cache = false;
+  result->rep.decompress_allocator = new leveldb::DecompressAllocator();
+  return result;
+}
 
-  leveldb::Iterator *i = db->NewIterator(read_options);
-  i->SeekToFirst();
-  while (i->Valid())
-  {
-    keyvalfunc(i->key().size(),i->key().data(),i->value().size(), i->value().data());
-    i->Next();
-  }
-
-  delete i;
-  delete db;
+void leveldb_mcpe_readoptions_destroy(leveldb_readoptions_t* opt)
+{
+  delete opt->rep.decompress_allocator;
+  delete opt;
 }
 
 }  // end extern "C"
